@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Score Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            skyedu: '#22d3ee',
+            sunrise: '#f97316',
+            meadow: '#22c55e',
+            cherry: '#ef4444',
+            royal: '#1d4ed8'
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Nunito', sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-cyan-100 via-orange-50 to-lime-100 text-slate-800">
+  <div class="max-w-7xl mx-auto px-4 py-6 lg:py-8">
+    <header class="mb-6">
+      <h1 class="text-3xl lg:text-4xl font-extrabold text-royal">Class Score Admin Panel</h1>
+      <p class="text-slate-600 mt-1">Adjust points quickly and keep the classroom leaderboard fresh.</p>
+    </header>
+
+    <section class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
+      <div class="xl:col-span-2 bg-white/85 backdrop-blur rounded-2xl shadow-lg p-4 border border-white">
+        <h2 class="font-bold text-xl text-slate-700 mb-3">Student Controls</h2>
+        <div id="studentList" class="space-y-3 max-h-[55vh] overflow-auto pr-1"></div>
+      </div>
+      <div class="bg-white/85 backdrop-blur rounded-2xl shadow-lg p-4 border border-white">
+        <h2 class="font-bold text-xl text-slate-700 mb-3">Live Score Chart</h2>
+        <div id="chart" class="w-full h-[55vh]"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="loginModal" class="hidden fixed inset-0 bg-slate-900/45 z-40 items-center justify-center px-4">
+    <div class="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6">
+      <h3 class="text-xl font-bold text-royal mb-3">Admin Password</h3>
+      <input id="passwordInput" type="password" placeholder="Enter password" class="w-full border border-slate-200 rounded-xl px-3 py-2 mb-3 outline-none focus:ring-2 focus:ring-skyedu" />
+      <button id="loginBtn" class="w-full bg-royal text-white rounded-xl py-2 font-semibold">Login</button>
+      <p id="loginError" class="text-cherry text-sm mt-2"></p>
+    </div>
+  </div>
+
+  <div id="toast" class="hidden fixed right-4 top-4 z-50 bg-slate-900 text-white px-4 py-2 rounded-xl shadow-xl"></div>
+
+  <script src="./main.js"></script>
+</body>
+</html>
