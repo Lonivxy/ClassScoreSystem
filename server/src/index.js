@@ -185,6 +185,69 @@ app.get('/api/students/:id/logs', (req, res) => {
   return res.json({ student: toStudentRow(student), logs });
 });
 
+app.post('/api/students/import', requireAdmin, (req, res) => {
+  const rawText = typeof req.body?.text === 'string' ? req.body.text : '';
+  if (!rawText.trim()) {
+    return res.status(400).json({ message: 'Import text is required.' });
+  }
+
+  const rawLines = rawText.split(/\r?\n/);
+  const parsedNames = [];
+  const seen = new Set();
+
+  for (const line of rawLines) {
+    const name = line.trim();
+    if (!name) {
+      continue;
+    }
+    const key = name.toLocaleLowerCase();
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    parsedNames.push(name);
+  }
+
+  if (!parsedNames.length) {
+    return res.status(400).json({ message: 'No valid student names found.' });
+  }
+
+  const existingByName = db.prepare('SELECT id, name FROM students WHERE lower(name) = lower(?)');
+  const insertStudent = db.prepare('INSERT INTO students (name, points, level) VALUES (?, 0, 0)');
+
+  const imported = [];
+  const skipped = [];
+
+  try {
+    db.exec('BEGIN');
+    for (const name of parsedNames) {
+      const existed = existingByName.get(name);
+      if (existed) {
+        skipped.push(name);
+        continue;
+      }
+      insertStudent.run(name);
+      imported.push(name);
+    }
+    db.exec('COMMIT');
+  } catch (error) {
+    db.exec('ROLLBACK');
+    throw error;
+  }
+
+  const payload = {
+    type: 'students_imported',
+    importedCount: imported.length,
+    skippedCount: skipped.length,
+    imported,
+    skipped,
+    timestamp: new Date().toISOString()
+  };
+
+  broadcast(payload);
+  return res.json(payload);
+});
+
 app.post('/api/students/:id/score', requireAdmin, (req, res) => {
   const studentId = Number(req.params.id);
   const delta = Number(req.body?.delta);

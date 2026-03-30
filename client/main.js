@@ -212,6 +212,9 @@ function connectWS() {
         openDetail(data.student.id);
       }
     }
+    if (data.type === 'students_imported') {
+      await fetchStudents();
+    }
   };
 
   ws.onclose = () => setTimeout(connectWS, 2000);

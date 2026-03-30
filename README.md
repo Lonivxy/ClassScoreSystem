@@ -1,5 +1,8 @@
 ﻿# Class Visual Score System
 
+- [Deployment Guide (English)](./DEPLOYMENT.md#english-guide)
+- [中文说明](./DEPLOYMENT.md#中文说明)
+
 A full-stack classroom score platform with real-time leaderboard updates.
 
 ## Stack
@@ -23,6 +26,7 @@ ClassScoreSystem/
 ├─ client/
 │  ├─ index.html                     # classroom screen page
 │  └─ main.js
+├─ DEPLOYMENT.md
 ├─ .env.example
 ├─ package.json
 └─ README.md
@@ -33,6 +37,7 @@ ClassScoreSystem/
 - SQL student storage: `name`, `points`, `level`
 - Score history logs: `delta`, `reason`, `note`, `time`
 - Admin scoring actions: `+1`, `+2`, `-1`, and custom integer delta
+- Admin batch import students from pasted text or `.txt` file (one name per line, duplicate names skipped)
 - Default reasons + custom reason
 - Live ECharts bar chart in admin panel
 - Client ranking board with auto-scroll
@@ -78,13 +83,6 @@ npm start
 - Admin: `http://localhost:3000/admin`
 - Client: `http://localhost:3000/client`
 
-## Deployment Notes
-
-- Deploy directly to your own server.
-- Use PM2 in production: `pm2 start npm --name class-score -- start`
-- Use Nginx/Apache reverse proxy if needed.
-- Default DB path: `server/data/class-score.db`
-
 ## Main APIs
 
 - `GET /api/config`
@@ -92,5 +90,6 @@ npm start
 - `GET /api/students`
 - `GET /api/students/:id/logs`
 - `POST /api/students/:id/score`
+- `POST /api/students/import`
 - `GET /api/summary/top`
 - `WS /ws`

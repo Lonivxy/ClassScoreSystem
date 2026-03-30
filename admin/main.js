@@ -11,6 +11,14 @@ const $loginModal = document.getElementById('loginModal');
 const $passwordInput = document.getElementById('passwordInput');
 const $loginBtn = document.getElementById('loginBtn');
 const $loginError = document.getElementById('loginError');
+const $openImportBtn = document.getElementById('openImportBtn');
+const $importModal = document.getElementById('importModal');
+const $closeImportBtn = document.getElementById('closeImportBtn');
+const $importText = document.getElementById('importText');
+const $importFile = document.getElementById('importFile');
+const $clearImportBtn = document.getElementById('clearImportBtn');
+const $submitImportBtn = document.getElementById('submitImportBtn');
+const $importResult = document.getElementById('importResult');
 
 function showToast(text) {
   $toast.textContent = text;
@@ -212,14 +220,81 @@ function connectWS() {
       showToast(`Realtime: ${data.student.name} ${data.log.delta > 0 ? '+' : ''}${data.log.delta}`);
       fetchStudents();
     }
+    if (data.type === 'students_imported') {
+      showToast(`Imported ${data.importedCount}, skipped ${data.skippedCount}.`);
+      fetchStudents();
+    }
   };
 
   ws.onclose = () => setTimeout(connectWS, 2000);
 }
 
+function openImportModal() {
+  $importResult.textContent = '';
+  $importModal.classList.remove('hidden');
+  $importModal.classList.add('flex');
+}
+
+function closeImportModal() {
+  $importModal.classList.add('hidden');
+  $importModal.classList.remove('flex');
+}
+
+async function submitImport() {
+  const text = $importText.value;
+  if (!text.trim()) {
+    showToast('Please paste names or upload a txt file first.');
+    return;
+  }
+
+  const res = await fetch('/api/students/import', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ text })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: 'Import failed.' }));
+    showToast(err.message || 'Import failed.');
+    return;
+  }
+
+  const data = await res.json();
+  $importResult.textContent = `Imported: ${data.importedCount}; Skipped: ${data.skippedCount}.`;
+  showToast(`Import completed: +${data.importedCount}`);
+  await fetchStudents();
+}
+
+async function readImportFile(file) {
+  const text = await file.text();
+  $importText.value = text;
+}
+
 window.addEventListener('resize', () => {
   if (state.chart) {
     state.chart.resize();
+  }
+});
+
+$openImportBtn.onclick = openImportModal;
+$closeImportBtn.onclick = closeImportModal;
+$clearImportBtn.onclick = () => {
+  $importText.value = '';
+  $importFile.value = '';
+  $importResult.textContent = '';
+};
+$submitImportBtn.onclick = submitImport;
+$importFile.onchange = async () => {
+  const file = $importFile.files && $importFile.files[0];
+  if (!file) {
+    return;
+  }
+  await readImportFile(file);
+  $importResult.textContent = `Loaded file: ${file.name}`;
+};
+$importModal.addEventListener('click', (e) => {
+  if (e.target === $importModal) {
+    closeImportModal();
   }
 });
 
